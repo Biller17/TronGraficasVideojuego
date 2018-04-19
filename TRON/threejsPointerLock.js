@@ -10,7 +10,7 @@ var bullets = [];
 var controlsEnabled = false;
 var gun = null;
 var sprint = false;
-var moveForward = false;
+var moveForward = true;
 var moveBackward = false;
 var moveLeft = false;
 var moveRight = false;
@@ -25,49 +25,6 @@ var cubeUrl = "../images/wooden_crate_texture_by_zackseeker-d38ddsb.png";
 // http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
 
-function shoot(){
-  if(shooting <= 0){
-    var time = performance.now();
-    var delta = ( time - prevTime ) / 1000;
-
-    console.log("pew");
-    var geometry = new THREE.SphereGeometry(0.13, 16, 17);
-    bullet = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-    bullet.material.emissive.setHex( 0xffffff );
-    bullet.position.x = gun.position.x;
-    bullet.position.z = gun.position.z;
-    bullet.position.y = gun.position.y;
-
-    // object.rotation.x = Math.random() * 2 * Math.PI;
-    // object.rotation.y = Math.random() * 2 * Math.PI;
-    // object.rotation.z = Math.random() * 2 * Math.PI;
-
-    bullet.scale.x = 3;
-    bullet.scale.y = 2;
-    bullet.scale.z = 7;
-    bullet.velocity = new THREE.Vector3(
-      Math.sin(controls.getObject().rotation.y + 160),
-      0,
-      Math.cos(controls.getObject().rotation.y + 160)
-    );
-
-    bullet.alive = true;
-    setTimeout(function(){
-      bullet.alive = false;
-      scene.remove(bullet);
-    }, 1800);
-
-    bullets.push(bullet);
-    scene.add(bullet);
-    // scene.add( bullets[bullets.length-1 ] );
-
-    // controls.getObject().translateY( 100000 * delta );
-    // console.log(controls.getObject().position.z);
-    // console.log(controls.getObject().position.x);
-    prevTime = time;
-    shooting += 10;
-  }
-}
 
 
 function loadJson()
@@ -264,6 +221,8 @@ function onKeyDown ( event )
 
         case 37: // left
         case 65: // a
+            console.warn("left");
+            controls.getObject().rotateY(Math.PI/2);
             moveLeft = true; break;
 
         case 40: // down
@@ -273,11 +232,12 @@ function onKeyDown ( event )
 
         case 39: // right
         case 68: // d
+        controls.getObject().rotateY(-Math.PI/2);
             moveRight = true;
             break;
-        case 69:
-            shoot();
-            break;
+        // case 69:
+        //     // shoot();
+        //     break;
         case 16:
             sprint = true;
             break;
@@ -296,7 +256,7 @@ function onKeyUp( event ) {
 
         case 38: // up
         case 87: // w
-            moveForward = false;
+            moveForward = true;
             break;
 
         case 37: // left
@@ -374,28 +334,14 @@ function createScene(canvas)
     var floor = new THREE.Mesh(floorGeometry, new THREE.MeshPhongMaterial({color:0xffffff, map:map, side:THREE.DoubleSide}));
     floor.rotation.x = -Math.PI / 2;
     scene.add( floor );
-    // 
+    //
     // // objects
     // for (var i = 0; i < 4; i++) {
     //     loadJson();
     // }
     // loadObj();
 
-    var boxGeometry = new THREE.BoxGeometry( 20, 20, 20 );
-    var cubeMap = new THREE.TextureLoader().load(cubeUrl);
 
-    for ( var i = 0; i < 40; i ++ )
-    {
-        var boxMaterial = new THREE.MeshPhongMaterial( { specular: 0xffffff, flatShading: true, map:cubeMap } );
-
-        var box = new THREE.Mesh( boxGeometry, boxMaterial );
-        box.position.x = Math.floor( Math.random() * 20 - 10 ) * 20;
-        box.position.y = Math.floor( Math.random() * 20 ) * 20 + 10;
-        box.position.z = Math.floor( Math.random() * 20 - 10 ) * 20;
-
-        scene.add( box );
-        objects.push( box );
-    }
     console.log(controls.getObject().position.y);
     console.log(controls.getObject().position.x);
     console.log(controls.getObject().position.z);
@@ -440,8 +386,8 @@ function run()
         direction.x = Number( moveLeft ) - Number( moveRight );
         direction.normalize(); // this ensures consistent movements in all directions
 
-        if ( moveForward || moveBackward ) velocity.z -= direction.z * 400.0 * delta;
-        if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
+        if ( moveForward || moveBackward ) velocity.z -= direction.z * 600.0 * delta;
+        // if ( moveLeft || moveRight ) velocity.x -= direction.x * 400.0 * delta;
 
         if ( onObject === true )
         {
